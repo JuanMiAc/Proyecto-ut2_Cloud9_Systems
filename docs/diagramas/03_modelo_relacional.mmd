@@ -1,0 +1,67 @@
+erDiagram
+  proyectos ||--o{ proyecto_requisitos : "FK cascadeOnDelete"
+  proyectos ||--o{ arquitecturas : "FK nullOnDelete nullable"
+  arquitecturas ||--o{ arquitectura_producto : "FK cascadeOnDelete"
+  productos ||--o{ arquitectura_producto : "FK restrictOnDelete"
+  presupuestos ||--o{ presupuesto_producto : "FK cascadeOnDelete"
+  productos ||--o{ presupuesto_producto : "FK restrictOnDelete"
+
+  productos {
+    BIGINT_UNSIGNED id PK
+    TINYINT_UNSIGNED proveedor_id "NOT NULL sin FK"
+    TINYINT_UNSIGNED region_id "NOT NULL sin FK"
+    TINYINT_UNSIGNED tipo_id "NOT NULL sin FK"
+    VARCHAR_150 nombre "NOT NULL"
+    VARCHAR_30 descripcion "NOT NULL"
+    INT precio "NOT NULL"
+    BOOLEAN disponible "NOT NULL default true"
+    BOOLEAN protegido "NOT NULL default false"
+    TIMESTAMP created_at "nullable"
+    TIMESTAMP updated_at "nullable"
+  }
+
+  proyectos {
+    BIGINT_UNSIGNED id PK
+    VARCHAR_150 nombre "NOT NULL"
+    TEXT descripcion "NOT NULL"
+    INT presupuesto "NOT NULL"
+    BOOLEAN estado "NOT NULL default true"
+    TIMESTAMP created_at "nullable"
+    TIMESTAMP updated_at "nullable"
+  }
+
+  proyecto_requisitos {
+    BIGINT_UNSIGNED id PK
+    BIGINT_UNSIGNED proyecto_id FK
+    VARCHAR_255 requisito "NOT NULL"
+    TIMESTAMP created_at "nullable"
+    TIMESTAMP updated_at "nullable"
+  }
+
+  arquitecturas {
+    BIGINT_UNSIGNED id PK
+    BIGINT_UNSIGNED proyecto_id FK "NULLABLE"
+    VARCHAR_20 nombre "NOT NULL"
+    BOOLEAN estado "NOT NULL default true"
+    TIMESTAMP created_at "nullable"
+    TIMESTAMP updated_at "nullable"
+  }
+
+  arquitectura_producto {
+    BIGINT_UNSIGNED arquitectura_id PK_FK
+    BIGINT_UNSIGNED producto_id PK_FK
+  }
+
+  presupuestos {
+    BIGINT_UNSIGNED id PK
+    VARCHAR_150 nombre "NOT NULL"
+    INT importe "NOT NULL"
+    VARCHAR_20 tipo_pago "NOT NULL"
+    TIMESTAMP created_at "nullable"
+    TIMESTAMP updated_at "nullable"
+  }
+
+  presupuesto_producto {
+    BIGINT_UNSIGNED presupuesto_id PK_FK
+    BIGINT_UNSIGNED producto_id PK_FK
+  }

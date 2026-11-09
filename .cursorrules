@@ -1,0 +1,113 @@
+# Cloud 9 Systems — Reglas del proyecto (alineadas con PLAN_MAESTRO.md v3)
+
+Eres un desarrollador experto en Laravel. Debes seguir estrictamente el Plan Maestro vigente (`PLAN_MAESTRO.md`, versión 3) y estas reglas. Ante conflicto con PDF u otras notas, prevalece el Plan Maestro v3.
+
+No inventes funcionalidades. No añadas tablas sin aprobación. No implementes autenticación ni usuarios. Trabaja por fases pequeñas; explica qué vas a crear antes de generar código masivo.
+
+---
+
+## 1. Base de datos (7 tablas)
+
+### productos
+- id BIGINT UNSIGNED PK AI
+- proveedor_id TINYINT UNSIGNED NOT NULL
+- region_id TINYINT UNSIGNED NOT NULL
+- tipo_id TINYINT UNSIGNED NOT NULL
+- nombre VARCHAR(150) NOT NULL
+- descripcion VARCHAR(30) NOT NULL
+- precio INTEGER NOT NULL
+- disponible BOOLEAN NOT NULL DEFAULT TRUE
+- protegido BOOLEAN NOT NULL DEFAULT FALSE
+- timestamps
+
+Reglas de importes (todo el sistema):
+- productos.precio, presupuestos.importe y proyectos.presupuesto son INTEGER.
+- Todos los importes son enteros. No se admiten decimales en formularios ni en la UI.
+- Laravel valida importes como enteros. Sin redondeos ni operaciones con decimales.
+- Seed: 38 productos con protegido=TRUE; precios enteros truncando el original sin redondear (p. ej. 1,55 → 1; 0,02 → 0).
+- Productos nuevos: protegido=FALSE; solo precios enteros.
+- Protegidos: no editar ni eliminar.
+- Asociados a presupuesto o arquitectura: no editar ni eliminar.
+- Nuevos sin asociaciones: sí editar y eliminar.
+- disponible=FALSE: no seleccionables en el carrito.
+- No existe recálculo de importes de presupuestos/arquitecturas por cambio de precio (los asociados no cambian de precio).
+
+### proyectos
+- id, nombre VARCHAR(150), descripcion TEXT, presupuesto INTEGER, estado BOOLEAN DEFAULT TRUE, timestamps
+- Varios requisitos y varias arquitecturas.
+- Con arquitecturas: no eliminar (ocultar botón).
+- Sin arquitecturas: al eliminar, borrar también requisitos; nunca arquitecturas.
+
+### proyecto_requisitos
+- id, proyecto_id FK, requisito VARCHAR(255), timestamps
+
+### arquitecturas
+- id, proyecto_id FK nullable, nombre VARCHAR(20), estado BOOLEAN DEFAULT TRUE, timestamps
+- Creación desde carrito; asociación a proyecto opcional.
+- No editar ni eliminar.
+- Total = suma entera de precios enteros de productos asociados al mostrar.
+
+### arquitectura_producto
+- PK compuesta (arquitectura_id, producto_id). Sin precio histórico.
+
+### presupuestos
+- id, nombre VARCHAR(150), importe INTEGER, tipo_pago VARCHAR(20), timestamps
+- tipo_pago: "Pago íntegro" | "Fraccionado"
+- Creación desde carrito: nombre + tipo_pago + importe = suma entera de los 6 precios enteros.
+- No editar ni eliminar. Importe fijo en la creación.
+
+### presupuesto_producto
+- PK compuesta (presupuesto_id, producto_id). Sin precio histórico.
+
+---
+
+## 2. Identificadores fijos (sin tablas)
+
+Proveedores: 1 AWS, 2 Azure  
+Regiones: 1 Irlanda, 2 Frankfurt, 3 Londres, 4 West Europe, 5 North Europe  
+(AWS: 1–3; Azure: 4–5)  
+Tipos/categoría: 1 Computación, 2 Almacenamiento, 3 Bases de datos, 4 Redes, 5 Seguridad, 6 Monitorización
+
+---
+
+## 3. Navegación y vistas
+
+Menú superior en todas las páginas: Índice | Catálogo | Carrito | Proyecto | Arquitectura | Presupuesto  
+- Opción activa: resaltada y no pulsable.
+- Arquitectura y Presupuesto → listados.
+- Confirmación al abandonar: SIEMPRE, con o sin datos introducidos, ante cualquier navegación que deje la página (menú, Volver, salir de Crear/Editar a listados, u otro enlace/acción). El aviso pregunta si está seguro e informa de que se perderá la información no guardada. Cancelar = permanecer y conservar datos. Confirmar = abandonar y descartar temporales, incluido el carrito cuando corresponda. Sin condiciones para ocultar el aviso.
+
+Vistas: Índice; Listar catálogo; Crear/Editar producto; Carrito; Listar/Crear/Editar proyecto; Listar arquitecturas; Listar presupuestos.
+
+- Crear/editar productos y proyectos: vistas y formularios dedicados.
+- Detalles (producto, proyecto, arquitectura, presupuesto): ventanas emergentes con Cerrar; conservar contexto del listado.
+- Formularios: @csrf y retorno visible.
+- Filtros dependientes (secuencia completa, en Catálogo, Carrito, Crear producto y Editar producto):
+  1) Seleccionar proveedor.
+  2) Mostrar únicamente las regiones compatibles con ese proveedor.
+  3) Seleccionar categoría.
+  4) Mostrar los productos correspondientes a las tres selecciones anteriores.
+- En Editar producto, encima de los filtros: acceso a Crear producto.
+
+---
+
+## 4. Carrito (sesión)
+
+- Sin tabla de carritos.
+- Seis categorías (un producto por tipo_id); sustituir / quitar; sin cantidades.
+- Misma secuencia de filtros dependientes que el catálogo (proveedor → regiones compatibles → categoría → productos).
+- Validación servidor de 6 productos válidos y tipos distintos.
+- Crear presupuesto: nombre, tipo_pago, importe calculado → pivote → limpiar sesión.
+- Crear arquitectura: nombre, proyecto opcional → pivote → limpiar sesión.
+
+---
+
+## 5. UX y metodología
+
+- Cada elemento de UI con función clara.
+- Validación final siempre en servidor (Form Requests).
+- No recuperar descartes de los PDF (carrito de 3 categorías, auth, edición de arquitecturas/presupuestos, CPU/RAM en producto, etc.).
+- Antes de migraciones/modelos/controladores/vistas: explicar brevemente su función.
+- No modificar decisiones de diseño, campos o relaciones sin autorización.
+- Mantener código sencillo y académico.
+- Fuente de detalle: PLAN_MAESTRO.md v3.

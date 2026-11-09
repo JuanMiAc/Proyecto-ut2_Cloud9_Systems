@@ -1,0 +1,47 @@
+flowchart TB
+  subgraph Cliente["Cliente"]
+    U["Usuario"]
+    NAV["Navegador"]
+    JS["JavaScript<br/>resources/js/app.js"]
+  end
+
+  subgraph HTTP["Capa HTTP Laravel"]
+    R["routes/web.php"]
+    FR["Form Requests<br/>Store/Update Producto<br/>Store/Update Proyecto<br/>Store Presupuesto<br/>Store Arquitectura"]
+    CTRL["Controladores<br/>HomeController<br/>ProductoController<br/>ProyectoController<br/>CarritoController<br/>PresupuestoController<br/>ArquitecturaController<br/>CatalogoApiController"]
+  end
+
+  subgraph App["Dominio de aplicación"]
+    CS["CarritoService<br/>sesión: carrito"]
+    CAT["App\\Support\\Catalogo<br/>proveedor / región / tipo<br/>SIN tabla BD"]
+    MOD["Modelos Eloquent<br/>Producto · Proyecto<br/>ProyectoRequisito<br/>Arquitectura · Presupuesto"]
+  end
+
+  subgraph Persistencia["Persistencia"]
+    DB[("BD MySQL/SQLite<br/>tablas de dominio")]
+    SES[("Sesión PHP<br/>clave carrito")]
+  end
+
+  subgraph UI["Presentación"]
+    BLADE["Vistas Blade<br/>resources/views"]
+  end
+
+  U --> NAV
+  NAV -->|"GET / POST / PUT / DELETE"| R
+  R --> CTRL
+  CTRL -.->|"altas y ediciones"| FR
+  FR -->|"validated()"| CTRL
+  CTRL --> CS
+  CTRL --> MOD
+  CTRL --> CAT
+  CS <--> SES
+  MOD <--> DB
+  CTRL -->|"view / redirect"| BLADE
+  BLADE -->|"HTML"| NAV
+  NAV --> U
+
+  NAV --> JS
+  JS -->|"GET JSON /api/regiones|tipos|productos"| R
+  R --> CTRL
+  CTRL -->|"JSON"| JS
+  JS -->|"actualiza DOM"| NAV

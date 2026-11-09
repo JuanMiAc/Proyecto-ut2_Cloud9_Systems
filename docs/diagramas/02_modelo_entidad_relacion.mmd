@@ -1,0 +1,55 @@
+erDiagram
+  PROYECTOS ||--o{ PROYECTO_REQUISITOS : "1:N"
+  PROYECTOS ||--o{ ARQUITECTURAS : "1:N opcional"
+  ARQUITECTURAS }o--o{ PRODUCTOS : "N:M"
+  PRESUPUESTOS }o--o{ PRODUCTOS : "N:M"
+
+  PRODUCTOS {
+    bigint id PK
+    tinyint proveedor_id "logico Catalogo"
+    tinyint region_id "logico Catalogo"
+    tinyint tipo_id "logico Catalogo"
+    varchar nombre
+    varchar descripcion
+    int precio
+    boolean disponible
+    boolean protegido
+  }
+
+  PROYECTOS {
+    bigint id PK
+    varchar nombre
+    text descripcion
+    int presupuesto
+    boolean estado
+  }
+
+  PROYECTO_REQUISITOS {
+    bigint id PK
+    bigint proyecto_id FK
+    varchar requisito
+  }
+
+  ARQUITECTURAS {
+    bigint id PK
+    bigint proyecto_id FK "nullable"
+    varchar nombre
+    boolean estado
+  }
+
+  ARQUITECTURA_PRODUCTO {
+    bigint arquitectura_id PK_FK
+    bigint producto_id PK_FK
+  }
+
+  PRESUPUESTOS {
+    bigint id PK
+    varchar nombre
+    int importe
+    varchar tipo_pago
+  }
+
+  PRESUPUESTO_PRODUCTO {
+    bigint presupuesto_id PK_FK
+    bigint producto_id PK_FK
+  }
