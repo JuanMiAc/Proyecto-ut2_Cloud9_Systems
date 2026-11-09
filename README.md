@@ -1,5 +1,5 @@
 # Cloud 9 Systems (UT2)
-
+Equipo: DAMIAN JUAN ANGEL YOEL
 Aplicación web académica en **Laravel** para gestionar un catálogo de productos cloud (AWS/Azure), un carrito de configuración por categorías, proyectos, arquitecturas y presupuestos.
 
 Este repositorio corresponde a la entrega de código de la **UT2**. El diseño funcional de referencia está descrito en `docs/PLAN_MAESTRO.md` (versión 3).
