@@ -1,5 +1,5 @@
 <?php
-
+//Imports de las clases necesarias
 use App\Http\Controllers\ArquitecturaController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CatalogoApiController;
@@ -8,9 +8,9 @@ use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProyectoController;
 use Illuminate\Support\Facades\Route;
-
+//Ruta del home de la app
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
+//Rutas de productos, proyectos, carrito, presupuestos y arquitecturas
 Route::get('/catalogo', [ProductoController::class, 'index'])->name('productos.index');
 Route::get('/catalogo/crear', [ProductoController::class, 'create'])->name('productos.create');
 Route::post('/catalogo', [ProductoController::class, 'store'])->name('productos.store');
